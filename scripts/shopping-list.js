@@ -55,6 +55,12 @@ const shoppingList = (function(){
     $('.js-shopping-list').html(shoppingListItemsString);
   }
 
+  function errorLogging(message) {
+    $('.js-error').text(message);
+    console.log('Error: ', $('.js-error'));
+
+  }
+
 
   function handleNewItemSubmit() {
     $('#js-shopping-list-form').submit(function (event) {
@@ -66,7 +72,10 @@ const shoppingList = (function(){
         store.addItem(newItem);
         console.log(newItem);
         render();
-      });
+      }, (error) => {
+        let mes = `Error: ${error.responseJSON.message}`
+        errorLogging(mes);
+        });
     });
   }
 
@@ -79,10 +88,11 @@ const shoppingList = (function(){
   function handleItemCheckClicked() {
     $('.js-shopping-list').on('click', '.js-item-toggle', event => {
       const id = getItemIdFromElement(event.currentTarget);
-      api.updateItem(id, { checked: !store.findById(id).checked }, store.findAndUpdate);
-      render();
-    });
+      api.updateItem(id, { checked: !store.findById(id).checked }, store.findAndUpdate.bind(store))
+    }
+  );
   }
+
 
   function handleDeleteItemClicked() {
     // like in `handleItemCheckClicked`, we use event delegation
@@ -90,7 +100,14 @@ const shoppingList = (function(){
       // get the index of the item in store.items
       const id = getItemIdFromElement(event.currentTarget);
       // delete the item
-      store.findAndDelete(id);
+      api.deleteItem(id, (id) => {
+        store.findAndDelete(id);
+        render();
+      }, (error) => {
+        let mes = `Error: ${error.responseJSON.message}`
+        errorLogging(mes);
+        });
+
       // render the updated shopping list
       render();
     });
@@ -103,7 +120,10 @@ const shoppingList = (function(){
       const itemName = $(event.currentTarget).find('.shopping-item').val();
       api.updateItem(id, itemName, store.findAndUpdate);
       render();
-    });
+    }, (error) => {
+      let mes = `Error: ${error.responseJSON.message}`
+      errorLogging(mes);
+      });
   }
 
   function handleToggleFilterClick() {

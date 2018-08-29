@@ -1,6 +1,8 @@
 /* global Item */
 'use strict';
 
+
+
 // eslint-disable-next-line no-unused-vars
 const store = (function(){
   const addItem = function(item) {
@@ -13,11 +15,14 @@ const store = (function(){
 
   const findAndDelete = function(id) {
     this.items = this.items.filter(item => item.id !== id);
+    api.deleteItem(id);
   };
 
   function findAndUpdate(id, newData) {
-    const item = findById(id);
-    Object.assign(item, newData)
+    const item = this.items.find(function(item) {
+      return item.id === id;
+    });
+    Object.assign(item, newData);
   }
 
   const toggleCheckedFilter = function() {

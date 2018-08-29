@@ -10,7 +10,7 @@ const api = (function api() {
     $.getJSON(BASE_URL_ITEMS, callback);
   }
 
-  const createItem = function( name, callback ) {
+  const createItem = function( name, callback, errorCallback) {
     const newItem = JSON.stringify({name});
 
     $.ajax({
@@ -18,27 +18,42 @@ const api = (function api() {
       method: 'POST',
       contentType: 'application/json',
       data: newItem,
-      success: callback
+      success: callback,
+      error: errorCallback,
     })
   }
 
-  const updateItem = function(id, updateData, callback) {
+  const updateItem = function(id, updateData, callback ) {
     $.ajax({
       url: `${BASE_URL_ITEMS}/${id}`,
       method: 'PATCH',
       contentType: 'application/json',
       data: JSON.stringify(updateData),
-      success: callback,
+      success: function() {
+        callback(id, updateData);
+        shoppingList.render();
+      }
+
     })
   }
 
-  // const callback = function(data) {
-  //   console.log(data);
-  // }
+  const deleteItem = function (id, callback, errorCallback) {
+    $.ajax({
+      url: `${BASE_URL_ITEMS}/${id}`,
+      method: 'DELETE',
+      contentType: 'application/json',
+      success: function() {
+        callback(id);
+        shoppingList.render();
+      },
+      error: errorCallback,
+    })
+  }
 
   return {
     getItems,
     createItem,
     updateItem,
+    deleteItem,
   }
 })();
